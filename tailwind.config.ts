@@ -24,6 +24,16 @@ export default {
 				ring: 'hsl(var(--ring))',
 				background: 'hsl(var(--background))',
 				foreground: 'hsl(var(--foreground))',
+				'neon-cyan': 'hsl(var(--neon-cyan))',
+				'neon-green': 'hsl(var(--neon-green))',
+				'neon-purple': 'hsl(var(--neon-purple))',
+				'neon-orange': 'hsl(var(--neon-orange))',
+				'ctf-primary': 'hsl(var(--ctf-primary))',
+				'ctf-secondary': 'hsl(var(--ctf-secondary))',
+				'ctf-success': 'hsl(var(--ctf-success))',
+				'ctf-warning': 'hsl(var(--ctf-warning))',
+				'ctf-locked': 'hsl(var(--ctf-locked))',
+				'ctf-unlocked': 'hsl(var(--ctf-unlocked))',
 				primary: {
 					DEFAULT: 'hsl(var(--primary))',
 					foreground: 'hsl(var(--primary-foreground))'
