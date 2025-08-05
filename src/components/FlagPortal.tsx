@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { KeyRound, ExternalLink, PartyPopper, User, Mail } from 'lucide-react';
-import { supabase, type CTFCompletion } from '@/lib/supabase';
+import { supabase, isSupabaseConnected, type CTFCompletion } from '@/lib/supabase';
 import { useToast } from '@/components/ui/use-toast';
 
 interface FlagPortalProps {
@@ -61,9 +61,19 @@ const FlagPortal: React.FC<FlagPortalProps> = ({ collectedFlags, isUnlocked, sta
 
     setIsSubmitting(true);
     try {
+      if (!isSupabaseConnected) {
+        // If Supabase is not connected, just show success message
+        toast({
+          title: "Registration Complete! 🎉",
+          description: "You've completed the challenge! Connect Supabase to save your progress.",
+        });
+        setShowUserForm(false);
+        return;
+      }
+
       const completionTime = Math.floor((Date.now() - startTime) / 1000);
       
-      const { error } = await supabase
+      const { error } = await supabase!
         .from('ctf_completions')
         .insert({
           user_name: userName.trim(),

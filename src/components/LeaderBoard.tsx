@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Trophy, Clock, Users } from 'lucide-react';
-import { supabase, type CTFCompletion } from '@/lib/supabase';
+import { supabase, isSupabaseConnected, type CTFCompletion } from '@/lib/supabase';
 
 const LeaderBoard: React.FC = () => {
   const [completions, setCompletions] = useState<CTFCompletion[]>([]);
@@ -14,7 +14,13 @@ const LeaderBoard: React.FC = () => {
 
   const fetchCompletions = async () => {
     try {
-      const { data, error } = await supabase
+      if (!isSupabaseConnected) {
+        // If Supabase is not connected, show placeholder data
+        setCompletions([]);
+        return;
+      }
+
+      const { data, error } = await supabase!
         .from('ctf_completions')
         .select('*')
         .order('completion_time_seconds', { ascending: true })
@@ -74,7 +80,10 @@ const LeaderBoard: React.FC = () => {
           <div className="text-center py-8">
             <Trophy className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
             <p className="text-muted-foreground">
-              No champions yet! Be the first to complete the challenge.
+              {!isSupabaseConnected 
+                ? "Connect Supabase to track champions and display leaderboard!"
+                : "No champions yet! Be the first to complete the challenge."
+              }
             </p>
           </div>
         ) : (
