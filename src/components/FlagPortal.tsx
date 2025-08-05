@@ -2,29 +2,94 @@ import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { KeyRound, ExternalLink, PartyPopper } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Label } from '@/components/ui/label';
+import { KeyRound, ExternalLink, PartyPopper, User, Mail } from 'lucide-react';
+import { supabase, type CTFCompletion } from '@/lib/supabase';
+import { useToast } from '@/components/ui/use-toast';
 
 interface FlagPortalProps {
   collectedFlags: string[];
   isUnlocked: boolean;
+  startTime: number;
 }
 
-const FlagPortal: React.FC<FlagPortalProps> = ({ collectedFlags, isUnlocked }) => {
+const FlagPortal: React.FC<FlagPortalProps> = ({ collectedFlags, isUnlocked, startTime }) => {
   const [flagInput, setFlagInput] = useState('');
   const [showSuccess, setShowSuccess] = useState(false);
   const [showError, setShowError] = useState(false);
+  const [showUserForm, setShowUserForm] = useState(false);
+  const [userName, setUserName] = useState('');
+  const [userEmail, setUserEmail] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { toast } = useToast();
   
-  const correctCombination = 'FLAG{classifier}-FLAG{labels}-FLAG{accuracy80}-FLAG{not_toast}';
+  const correctCombinations = [
+    'FLAG{neural_maze}-FLAG{overfit_trap}-FLAG{forest_power}-FLAG{feature_master}',
+    'neural_maze-overfit_trap-forest_power-feature_master',
+    'FLAG{neural_maze} FLAG{overfit_trap} FLAG{forest_power} FLAG{feature_master}',
+    'neural_maze overfit_trap forest_power feature_master'
+  ];
   const msFormLink = 'https://forms.microsoft.com/r/your-form-id'; // Replace with actual form link
 
   const handleSubmit = () => {
-    if (flagInput.trim() === correctCombination) {
+    const userInput = flagInput.trim().toLowerCase();
+    const isCorrect = correctCombinations.some(combo => 
+      combo.toLowerCase() === userInput
+    );
+    
+    if (isCorrect) {
       setShowSuccess(true);
       setShowError(false);
+      setShowUserForm(true);
     } else {
       setShowError(true);
       setShowSuccess(false);
       setTimeout(() => setShowError(false), 3000);
+    }
+  };
+
+  const handleUserSubmit = async () => {
+    if (!userName.trim() || !userEmail.trim()) {
+      toast({
+        title: "Missing Information",
+        description: "Please fill in both name and email.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      const completionTime = Math.floor((Date.now() - startTime) / 1000);
+      
+      const { error } = await supabase
+        .from('ctf_completions')
+        .insert({
+          user_name: userName.trim(),
+          email: userEmail.trim(),
+          completed_at: new Date().toISOString(),
+          flags_collected: collectedFlags,
+          completion_time_seconds: completionTime
+        });
+
+      if (error) throw error;
+
+      toast({
+        title: "Success! 🎉",
+        description: "You've been registered for the ML session!",
+      });
+      
+      setShowUserForm(false);
+    } catch (error) {
+      console.error('Error saving completion:', error);
+      toast({
+        title: "Error",
+        description: "Failed to save your completion. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -56,7 +121,7 @@ const FlagPortal: React.FC<FlagPortalProps> = ({ collectedFlags, isUnlocked }) =
                 🎯 <strong>Final Challenge:</strong> Combine your 4 flags (in order), separated by hyphens.
               </p>
               <p className="text-sm text-muted-foreground font-mono">
-                Example: FLAG{'{a}'}-FLAG{'{b}'}-FLAG{'{c}'}-FLAG{'{d}'}
+                Example: FLAG{'{a}'}-FLAG{'{b}'}-FLAG{'{c}'}-FLAG{'{d}'} or just: a-b-c-d
               </p>
             </div>
 
@@ -104,7 +169,7 @@ const FlagPortal: React.FC<FlagPortalProps> = ({ collectedFlags, isUnlocked }) =
                 </div>
               )}
 
-              {showSuccess && (
+              {showSuccess && !showUserForm && (
                 <div className="space-y-6 text-center">
                   <div className="p-6 rounded-lg border-2 border-ctf-success bg-ctf-success/10 text-ctf-success unlock-animation">
                     <PartyPopper className="w-16 h-16 mx-auto mb-4 text-ctf-success" />
@@ -116,15 +181,68 @@ const FlagPortal: React.FC<FlagPortalProps> = ({ collectedFlags, isUnlocked }) =
                     <p className="text-lg font-semibold">
                       Ready to dive deeper into Machine Learning?
                     </p>
-                    <Button 
-                      onClick={openForm}
-                      className="pulse-neon bg-ctf-success text-black hover:bg-ctf-success/80 text-lg p-6 h-auto"
-                    >
-                      <ExternalLink className="w-5 h-5 mr-2" />
-                      Enroll in ML Learning Session
-                    </Button>
+                    <Dialog open={showUserForm} onOpenChange={setShowUserForm}>
+                      <DialogTrigger asChild>
+                        <Button 
+                          className="pulse-neon bg-ctf-success text-black hover:bg-ctf-success/80 text-lg p-6 h-auto"
+                        >
+                          <User className="w-5 h-5 mr-2" />
+                          Register for ML Learning Session
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent className="sm:max-w-md">
+                        <DialogHeader>
+                          <DialogTitle className="text-center text-ctf-primary">
+                            🎯 Register for ML Session
+                          </DialogTitle>
+                        </DialogHeader>
+                        <div className="space-y-4">
+                          <div className="space-y-2">
+                            <Label htmlFor="name">Full Name</Label>
+                            <div className="relative">
+                              <User className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                              <Input
+                                id="name"
+                                placeholder="Enter your full name"
+                                value={userName}
+                                onChange={(e) => setUserName(e.target.value)}
+                                className="pl-10"
+                              />
+                            </div>
+                          </div>
+                          <div className="space-y-2">
+                            <Label htmlFor="email">Email Address</Label>
+                            <div className="relative">
+                              <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                              <Input
+                                id="email"
+                                type="email"
+                                placeholder="Enter your email"
+                                value={userEmail}
+                                onChange={(e) => setUserEmail(e.target.value)}
+                                className="pl-10"
+                              />
+                            </div>
+                          </div>
+                          <Button 
+                            onClick={handleUserSubmit}
+                            disabled={isSubmitting}
+                            className="w-full pulse-neon bg-ctf-success text-black hover:bg-ctf-success/80"
+                          >
+                            {isSubmitting ? (
+                              "Registering..."
+                            ) : (
+                              <>
+                                <ExternalLink className="w-4 h-4 mr-2" />
+                                Complete Registration
+                              </>
+                            )}
+                          </Button>
+                        </div>
+                      </DialogContent>
+                    </Dialog>
                     <p className="text-sm text-muted-foreground">
-                      Click above to access the Microsoft Form and secure your spot!
+                      Register to secure your spot in the ML learning session!
                     </p>
                   </div>
                 </div>

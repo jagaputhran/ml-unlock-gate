@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import CTFHeader from '@/components/CTFHeader';
 import CTFPuzzle from '@/components/CTFPuzzle';
 import FlagPortal from '@/components/FlagPortal';
+import LeaderBoard from '@/components/LeaderBoard';
 import ctfBg from '@/assets/ctf-bg.jpg';
 
 interface PuzzleData {
@@ -18,47 +19,48 @@ interface PuzzleData {
 const CTFChallenge: React.FC = () => {
   const [solvedPuzzles, setSolvedPuzzles] = useState<Set<number>>(new Set());
   const [collectedFlags, setCollectedFlags] = useState<string[]>([]);
+  const [startTime] = useState<number>(Date.now());
 
   const puzzles: PuzzleData[] = [
     {
       id: 1,
-      title: "ML Lens 🔍",
-      emoji: "🔍",
-      question: "You have a model that predicts whether an email is spam or not. What type of ML task is this?",
-      choices: ["Regression", "Reinforcement", "Classification", "Clustering"],
+      title: "Neural Network Decoder 🧠",
+      emoji: "🧠",
+      question: "A neural network has 3 input nodes, 2 hidden layers with 4 nodes each, and 1 output node. How many total connections (weights) exist between all layers?",
+      choices: ["25", "12", "21", "17"],
       correctAnswer: 2,
-      flag: "FLAG{classifier}",
-      funFact: "Classification tasks predict discrete categories or classes. Other examples include image recognition (cat vs dog) and sentiment analysis (positive vs negative)!"
+      flag: "FLAG{neural_maze}",
+      funFact: "Neural networks learn by adjusting weights! Input-to-hidden: 3×4=12, hidden-to-hidden: 4×4=16, hidden-to-output: 4×1=4. But wait... there are only 2 hidden layers, so it's (3×4) + (4×4) + (4×1) = 21 connections total!"
     },
     {
       id: 2,
-      title: "Label Hunt 🏷️",
-      emoji: "🏷️",
-      question: "If you train a model with both input data and labeled outputs, what kind of learning is it?",
-      choices: ["Semi-supervised", "Unsupervised", "Reinforcement", "Supervised"],
-      correctAnswer: 3,
-      flag: "FLAG{labels}",
-      funFact: "Supervised learning is like learning with a teacher! The model learns from examples where we already know the correct answers. Think of it as studying with answer sheets."
+      title: "Data Mining Challenge ⛏️",
+      emoji: "⛏️",
+      question: "You have a dataset with 1000 samples. After splitting: 600 training, 200 validation, 200 test. Your model achieves 95% accuracy on training but only 70% on validation. What's happening?",
+      choices: ["Underfitting", "Perfect performance", "Overfitting", "Data corruption"],
+      correctAnswer: 2,
+      flag: "FLAG{overfit_trap}",
+      funFact: "Overfitting is like memorizing answers without understanding! The model learned the training data too well but can't generalize to new data. It's the difference between cramming and true learning."
     },
     {
       id: 3,
-      title: "Accuracy Matters 📊",
-      emoji: "📊",
-      question: "Your model made 80 correct predictions out of 100. What is its accuracy?",
-      choices: ["0.8", "1.2", "0.2", "80"],
-      correctAnswer: 0,
-      flag: "FLAG{accuracy80}",
-      funFact: "Accuracy = Correct Predictions / Total Predictions. It's expressed as a decimal (0.8) or percentage (80%). Perfect accuracy is 1.0 or 100%!"
+      title: "Algorithm Battlefield ⚔️",
+      emoji: "⚔️",
+      question: "You need to predict house prices based on size, location, and age. Which algorithm combination would be most effective for this regression task?",
+      choices: ["K-Means + SVM", "Random Forest + Cross-validation", "Decision Tree only", "Logistic Regression + PCA"],
+      correctAnswer: 1,
+      flag: "FLAG{forest_power}",
+      funFact: "Random Forest is perfect for regression with mixed data types! It handles numerical (size, age) and categorical (location) features well, while cross-validation ensures robust performance measurement."
     },
     {
       id: 4,
-      title: "ML is Everywhere 🌍",
-      emoji: "🌍",
-      question: "Which of the following is **not** a typical use of ML?",
-      choices: ["Predicting weather", "Recommending movies", "Email auto-categorization", "Making toast"],
+      title: "Feature Engineering Puzzle 🔧",
+      emoji: "🔧",
+      question: "You're building a spam detector. Which feature engineering technique would be LEAST helpful for improving email classification?",
+      choices: ["TF-IDF vectorization of email text", "One-hot encoding sender domains", "Normalizing timestamp to business hours", "Adding sender's geographical coordinates"],
       correctAnswer: 3,
-      flag: "FLAG{not_toast}",
-      funFact: "While ML can't literally make toast, it's everywhere else! From Netflix recommendations to voice assistants, ML is transforming how we interact with technology daily."
+      flag: "FLAG{feature_master}",
+      funFact: "Geographical coordinates of senders are rarely useful for spam detection! TF-IDF finds important words, domain encoding catches suspicious senders, and time normalization reveals spam patterns, but location is usually irrelevant for email content analysis."
     }
   ];
 
@@ -103,7 +105,10 @@ const CTFChallenge: React.FC = () => {
           <FlagPortal 
             collectedFlags={collectedFlags}
             isUnlocked={isPortalUnlocked}
+            startTime={startTime}
           />
+          
+          <LeaderBoard />
         </div>
 
         <footer className="text-center mt-12 py-8 border-t border-ctf-primary/20">
