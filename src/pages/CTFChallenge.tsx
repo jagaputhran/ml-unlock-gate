@@ -1,123 +1,85 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import CTFHeader from '@/components/CTFHeader';
-import CTFPuzzle from '@/components/CTFPuzzle';
-import FlagPortal from '@/components/FlagPortal';
-import LeaderBoard from '@/components/LeaderBoard';
 import ctfBg from '@/assets/ctf-bg.jpg';
-
-interface PuzzleData {
-  id: number;
-  title: string;
-  emoji: string;
-  question: string;
-  choices: string[];
-  correctAnswer: number;
-  flag: string;
-  funFact: string;
-}
+import PuzzleRoom1 from '@/components/puzzles/PuzzleRoom1';
+import PuzzleRoom2 from '@/components/puzzles/PuzzleRoom2';
+import PuzzleRoom3 from '@/components/puzzles/PuzzleRoom3';
+import PuzzleRoom4 from '@/components/puzzles/PuzzleRoom4';
+import FinalPortal from '@/components/FinalPortal';
 
 const CTFChallenge: React.FC = () => {
-  const [solvedPuzzles, setSolvedPuzzles] = useState<Set<number>>(new Set());
-  const [collectedFlags, setCollectedFlags] = useState<string[]>([]);
-  const [startTime] = useState<number>(Date.now());
+  const [alias, setAlias] = useState('');
+  const [started, setStarted] = useState(false);
+  const [solved, setSolved] = useState<Set<number>>(new Set());
+  const [flags, setFlags] = useState<string[]>([]);
 
-  const puzzles: PuzzleData[] = [
-    {
-      id: 1,
-      title: "Neural Network Decoder 🧠",
-      emoji: "🧠",
-      question: "A neural network has 3 input nodes, 2 hidden layers with 4 nodes each, and 1 output node. How many total connections (weights) exist between all layers?",
-      choices: ["25", "12", "21", "17"],
-      correctAnswer: 2,
-      flag: "FLAG{neural_maze}",
-      funFact: "Neural networks learn by adjusting weights! Input-to-hidden: 3×4=12, hidden-to-hidden: 4×4=16, hidden-to-output: 4×1=4. But wait... there are only 2 hidden layers, so it's (3×4) + (4×4) + (4×1) = 21 connections total!"
-    },
-    {
-      id: 2,
-      title: "Data Mining Challenge ⛏️",
-      emoji: "⛏️",
-      question: "You have a dataset with 1000 samples. After splitting: 600 training, 200 validation, 200 test. Your model achieves 95% accuracy on training but only 70% on validation. What's happening?",
-      choices: ["Underfitting", "Perfect performance", "Overfitting", "Data corruption"],
-      correctAnswer: 2,
-      flag: "FLAG{overfit_trap}",
-      funFact: "Overfitting is like memorizing answers without understanding! The model learned the training data too well but can't generalize to new data. It's the difference between cramming and true learning."
-    },
-    {
-      id: 3,
-      title: "Algorithm Battlefield ⚔️",
-      emoji: "⚔️",
-      question: "You need to predict house prices based on size, location, and age. Which algorithm combination would be most effective for this regression task?",
-      choices: ["K-Means + SVM", "Random Forest + Cross-validation", "Decision Tree only", "Logistic Regression + PCA"],
-      correctAnswer: 1,
-      flag: "FLAG{forest_power}",
-      funFact: "Random Forest is perfect for regression with mixed data types! It handles numerical (size, age) and categorical (location) features well, while cross-validation ensures robust performance measurement."
-    },
-    {
-      id: 4,
-      title: "Feature Engineering Puzzle 🔧",
-      emoji: "🔧",
-      question: "You're building a spam detector. Which feature engineering technique would be LEAST helpful for improving email classification?",
-      choices: ["TF-IDF vectorization of email text", "One-hot encoding sender domains", "Normalizing timestamp to business hours", "Adding sender's geographical coordinates"],
-      correctAnswer: 3,
-      flag: "FLAG{feature_master}",
-      funFact: "Geographical coordinates of senders are rarely useful for spam detection! TF-IDF finds important words, domain encoding catches suspicious senders, and time normalization reveals spam patterns, but location is usually irrelevant for email content analysis."
-    }
-  ];
+  const startGame = () => setStarted(true);
 
-  const handlePuzzleSolve = (puzzleId: number, flag: string) => {
-    setSolvedPuzzles(prev => new Set([...prev, puzzleId]));
-    setCollectedFlags(prev => [...prev, flag]);
+  const onSolved = (id: number, flag: string) => {
+    setSolved((prev) => new Set([...prev, id]));
+    setFlags((prev) => (prev.includes(flag) ? prev : [...prev, flag]));
   };
 
-  const isPuzzleUnlocked = (puzzleId: number) => {
-    if (puzzleId === 1) return true;
-    return solvedPuzzles.has(puzzleId - 1);
+  const isUnlocked = (id: number) => {
+    if (!started) return false;
+    if (id === 1) return true;
+    return solved.has(id - 1);
   };
 
-  const isPortalUnlocked = solvedPuzzles.size === puzzles.length;
+  const allSolved = solved.size === 4;
 
   return (
-    <div 
+    <div
       className="min-h-screen bg-background cyber-grid relative"
       style={{
         backgroundImage: `linear-gradient(rgba(15, 23, 42, 0.9), rgba(15, 23, 42, 0.95)), url(${ctfBg})`,
         backgroundSize: 'cover',
         backgroundPosition: 'center',
-        backgroundAttachment: 'fixed'
+        backgroundAttachment: 'fixed',
       }}
     >
       <div className="container mx-auto px-4 py-8 max-w-4xl relative z-10">
-        <CTFHeader 
-          completedSections={solvedPuzzles.size}
-          totalSections={puzzles.length}
-        />
-        
-        <div className="space-y-8">
-          {puzzles.map((puzzle) => (
-            <CTFPuzzle
-              key={puzzle.id}
-              {...puzzle}
-              isUnlocked={isPuzzleUnlocked(puzzle.id)}
-              onSolve={handlePuzzleSolve}
-            />
-          ))}
-          
-          <FlagPortal 
-            collectedFlags={collectedFlags}
-            isUnlocked={isPortalUnlocked}
-            startTime={startTime}
-          />
-          
-          <LeaderBoard />
-        </div>
+        <CTFHeader completedSections={solved.size} totalSections={4} />
+
+        <header className="text-center mb-8">
+          <h1 className="text-3xl md:text-4xl font-bold text-ctf-primary">ML CTF: Quantum Protocol</h1>
+          <p className="text-muted-foreground mt-2">Frontend-only, immersive puzzle experience</p>
+        </header>
+
+        {!started ? (
+          <section className="mb-8 animate-fade-in">
+            <div className="mx-auto max-w-xl p-6 rounded-lg border neon-border bg-card/80 backdrop-blur-sm">
+              <h2 className="text-xl font-semibold mb-3">Entry Terminal</h2>
+              <label className="block text-sm mb-2">Agent Alias</label>
+              <input
+                value={alias}
+                onChange={(e) => setAlias(e.target.value)}
+                placeholder="Enter your alias"
+                className="w-full h-11 rounded-md border bg-background px-3"
+                aria-label="Agent alias"
+              />
+              <button
+                onClick={startGame}
+                className="mt-4 w-full h-11 rounded-md bg-primary text-primary-foreground hover:opacity-90 transition pulse-neon"
+              >
+                Begin Mission
+              </button>
+            </div>
+          </section>
+        ) : (
+          <main className="space-y-8">
+            <PuzzleRoom1 isUnlocked={isUnlocked(1)} onSolved={(flag) => onSolved(1, flag)} />
+            <PuzzleRoom2 isUnlocked={isUnlocked(2)} onSolved={(flag) => onSolved(2, flag)} />
+            <PuzzleRoom3 isUnlocked={isUnlocked(3)} onSolved={(flag) => onSolved(3, flag)} />
+            <PuzzleRoom4 isUnlocked={isUnlocked(4)} onSolved={(flag) => onSolved(4, flag)} />
+
+            <FinalPortal alias={alias} flags={flags} isUnlocked={allSolved} msFormLink={"https://forms.microsoft.com/r/your-form-id"} />
+          </main>
+        )}
 
         <footer className="text-center mt-12 py-8 border-t border-ctf-primary/20">
-          <p className="text-muted-foreground text-sm">
-            🚀 Ready to advance your ML journey? Complete the challenge above!
-          </p>
-          <p className="text-xs text-muted-foreground mt-2">
-            Built with ❤️ for curious minds | Powered by Interactive Learning
-          </p>
+          <p className="text-muted-foreground text-sm">🚀 Ready to advance your ML journey? Complete the challenge above!</p>
+          <p className="text-xs text-muted-foreground mt-2">Built for curious minds | Zero-backend edition</p>
         </footer>
       </div>
     </div>
