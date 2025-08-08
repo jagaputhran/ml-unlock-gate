@@ -199,6 +199,7 @@ const PuzzleRoom5: React.FC<PuzzleRoom5Props> = ({ isUnlocked, onSolved }) => {
       setInjectionSolved(true);
       setFeedback('Injection vector identified: dynamic eval on templates.');
       success();
+      stopAlarm();
     } else {
       setFeedback('Nope. Trace data flow and find the sink.');
       error();
