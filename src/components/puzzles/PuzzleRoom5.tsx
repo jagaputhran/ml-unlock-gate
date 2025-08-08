@@ -182,8 +182,7 @@ const PuzzleRoom5: React.FC<PuzzleRoom5Props> = ({ isUnlocked, onSolved }) => {
     "",
     "export function renderTemplate(template, data) {",
     "  const merged = template.replace(/\\$\\{(\\w+)\\}/g, (_, k) => data[k] ?? '');",
-    "  // WARNING: dynamic evaluation (bad) — can run injected code",
-    "  return eval('`' + merged + '`'); // <-- vulnerable",
+    "  return eval('`' + merged + '`'); ",
     "}",
   ];
 
