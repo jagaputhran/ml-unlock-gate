@@ -81,7 +81,7 @@ const CTFChallenge: React.FC = () => {
 
         <footer className="text-center mt-12 py-8 border-t border-ctf-primary/20">
           <p className="text-muted-foreground text-sm">🚀 Ready to advance your ML journey? Complete the challenge above!</p>
-          <p className="text-xs text-muted-foreground mt-2">Built for curious minds | Zero-backend edition</p>
+          <p className="text-xs text-muted-foreground mt-2">Built for curious minds | Zero-backend edition | Developed by Jagaputhran S ❤️</p>
         </footer>
       </div>
     </div>
