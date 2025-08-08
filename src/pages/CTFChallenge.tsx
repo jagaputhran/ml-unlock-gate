@@ -75,7 +75,7 @@ const CTFChallenge: React.FC = () => {
             <PuzzleRoom4 isUnlocked={isUnlocked(4)} onSolved={(flag) => onSolved(4, flag)} />
             <PuzzleRoom5 isUnlocked={isUnlocked(5)} onSolved={() => setSolved((prev) => new Set([...prev, 5]))} />
 
-            <FinalPortal alias={alias} flags={flags} isUnlocked={allSolved} msFormLink={"https://forms.microsoft.com/r/your-form-id"} />
+            <FinalPortal alias={alias} flags={flags} isUnlocked={solved.has(5)} msFormLink={"https://forms.microsoft.com/r/your-form-id"} />
           </main>
         )}
 

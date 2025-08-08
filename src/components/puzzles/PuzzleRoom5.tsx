@@ -36,8 +36,17 @@ const EXPECTED = 'DEFENDTHECITY';
 // Tiny WebAudio SFX
 function useSfx() {
   const ctxRef = useRef<AudioContext | null>(null);
+  const alarmIntervalRef = useRef<number | null>(null);
+  const timersRef = useRef<number[]>([]);
 useEffect(() => {
   return () => {
+    // stop any scheduled alarms
+    if (alarmIntervalRef.current != null) {
+      clearInterval(alarmIntervalRef.current);
+      alarmIntervalRef.current = null;
+    }
+    timersRef.current.forEach((id) => clearTimeout(id));
+    timersRef.current = [];
     const c = ctxRef.current;
     if (c) {
       void c.close();
@@ -58,6 +67,33 @@ useEffect(() => {
     o.stop(ctx.currentTime + dur);
   };
 
+  const stopAlarm = () => {
+    if (alarmIntervalRef.current != null) {
+      clearInterval(alarmIntervalRef.current);
+      alarmIntervalRef.current = null;
+    }
+    timersRef.current.forEach((id) => clearTimeout(id));
+    timersRef.current = [];
+  };
+
+  const alarm = (durationMs = 5000) => {
+    stopAlarm();
+    let toggle = false;
+    const tick = () => {
+      toggle = !toggle;
+      beep(toggle ? 320 : 520, 0.09, 'triangle', 0.04);
+    };
+    const intervalId = window.setInterval(tick, 180);
+    alarmIntervalRef.current = intervalId as unknown as number;
+    const stopId = window.setTimeout(() => {
+      if (alarmIntervalRef.current != null) {
+        clearInterval(alarmIntervalRef.current);
+        alarmIntervalRef.current = null;
+      }
+    }, durationMs);
+    timersRef.current.push(stopId);
+  };
+
   return {
     click: () => beep(420, 0.05, 'square', 0.015),
     success: () => {
@@ -68,9 +104,8 @@ useEffect(() => {
       beep(180, 0.08, 'sawtooth', 0.03);
       setTimeout(() => beep(150, 0.1, 'sawtooth', 0.03), 90);
     },
-    alarm: () => {
-      for (let i = 0; i < 6; i++) setTimeout(() => beep(i % 2 ? 320 : 520, 0.09, 'triangle', 0.04), i * 120);
-    },
+    alarm,
+    stopAlarm,
   };
 }
 
@@ -87,7 +122,7 @@ const PuzzleRoom5: React.FC<PuzzleRoom5Props> = ({ isUnlocked, onSolved }) => {
   const [injectionSolved, setInjectionSolved] = useState(false);
   const [feedback, setFeedback] = useState<string | null>(null);
 
-  const { click, success, error, alarm } = useSfx();
+  const { click, success, error, alarm, stopAlarm } = useSfx();
 
   useEffect(() => {
     if (!isUnlocked) return;
@@ -101,7 +136,7 @@ const PuzzleRoom5: React.FC<PuzzleRoom5Props> = ({ isUnlocked, onSolved }) => {
     if (!active) return;
     if (timeLeft === 0) {
       setFeedback('⛔ Alarm! Time expired. Threat escalating.');
-      alarm();
+      alarm(5000);
       setActive(false);
     }
   }, [timeLeft, active, alarm]);
@@ -109,19 +144,12 @@ const PuzzleRoom5: React.FC<PuzzleRoom5Props> = ({ isUnlocked, onSolved }) => {
   useEffect(() => {
     if (cipherSolved && injectionSolved) {
       setFeedback('✅ Breach contained. Protocol secured.');
+      stopAlarm();
       success();
       onSolved?.();
     }
   }, [cipherSolved, injectionSolved, onSolved, success]);
 
-  const reset = () => {
-    setShift(SHIFT_HINT);
-    setCipherSolved(false);
-    setInjectionSolved(false);
-    setFeedback(null);
-    setTimeLeft(90);
-    setActive(true);
-  };
 
   const handleAcceptDecryption = () => {
     click();
@@ -192,7 +220,7 @@ const PuzzleRoom5: React.FC<PuzzleRoom5Props> = ({ isUnlocked, onSolved }) => {
             <h3 className="text-sm font-semibold mb-2">Cipher Breaker</h3>
             <p className="text-xs text-muted-foreground mb-3">Encrypted Message:</p>
             <div className="font-mono text-lg tracking-wider select-all">{ENCRYPTED}</div>
-            <p className="text-xs text-muted-foreground mt-2">Hint: Try a Caesar shift. Rumor says the wheel turned by 5.</p>
+            <p className="text-xs text-muted-foreground mt-2">Hint: Try a Caesar shift. The key equals the edges of a pentagon.</p>
 
             <div className="mt-4 space-y-2">
               <label className="text-xs text-muted-foreground">Shift: {shift}</label>
@@ -244,10 +272,6 @@ const PuzzleRoom5: React.FC<PuzzleRoom5Props> = ({ isUnlocked, onSolved }) => {
           </div>
         )}
 
-        <div className="flex items-center gap-2">
-          <Button variant="secondary" onClick={reset}>Reset</Button>
-          {!isUnlocked && <span className="text-xs text-muted-foreground">Complete prior rooms to unlock.</span>}
-        </div>
       </CardContent>
     </Card>
   );
