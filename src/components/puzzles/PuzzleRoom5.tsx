@@ -30,7 +30,7 @@ function caesarShift(text: string, shift: number) {
 }
 
 const ENCRYPTED = 'IJKJSIYMJHNYD';
-const SHIFT_HINT = 5; // rumor wheel turned by 5
+const SHIFT_HINT = 10; // default slider position
 const EXPECTED = 'DEFENDTHECITY';
 
 // Tiny WebAudio SFX
@@ -38,6 +38,8 @@ function useSfx() {
   const ctxRef = useRef<AudioContext | null>(null);
   const alarmIntervalRef = useRef<number | null>(null);
   const timersRef = useRef<number[]>([]);
+  const alarmActiveRef = useRef(false);
+  const stopDeadlineRef = useRef<number | null>(null);
 useEffect(() => {
   return () => {
     // stop any scheduled alarms
@@ -68,29 +70,37 @@ useEffect(() => {
   };
 
   const stopAlarm = () => {
+    // mark inactive first to prevent further beeps
+    alarmActiveRef.current = false;
     if (alarmIntervalRef.current != null) {
       clearInterval(alarmIntervalRef.current);
       alarmIntervalRef.current = null;
     }
     timersRef.current.forEach((id) => clearTimeout(id));
     timersRef.current = [];
+    stopDeadlineRef.current = null;
   };
 
   const alarm = (durationMs = 5000) => {
+    // ensure no overlapping alarms
     stopAlarm();
+    alarmActiveRef.current = true;
+    stopDeadlineRef.current = Date.now() + durationMs;
     let toggle = false;
     const tick = () => {
+      if (!alarmActiveRef.current) return;
+      const deadline = stopDeadlineRef.current;
+      if (deadline && Date.now() >= deadline) {
+        stopAlarm();
+        return;
+      }
       toggle = !toggle;
       beep(toggle ? 320 : 520, 0.09, 'triangle', 0.04);
     };
-    const intervalId = window.setInterval(tick, 180);
-    alarmIntervalRef.current = intervalId as unknown as number;
-    const stopId = window.setTimeout(() => {
-      if (alarmIntervalRef.current != null) {
-        clearInterval(alarmIntervalRef.current);
-        alarmIntervalRef.current = null;
-      }
-    }, durationMs);
+    const id = window.setInterval(tick, 180);
+    alarmIntervalRef.current = id as unknown as number;
+    // hard stop fallback
+    const stopId = window.setTimeout(() => stopAlarm(), durationMs);
     timersRef.current.push(stopId);
   };
 
