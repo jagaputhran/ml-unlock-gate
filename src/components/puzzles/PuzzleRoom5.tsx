@@ -186,7 +186,7 @@ const PuzzleRoom5: React.FC<PuzzleRoom5Props> = ({ isUnlocked, onSolved }) => {
     "}",
   ];
 
-  const vulnerableIndex = 9; // the eval(...) line (0-based)
+  const vulnerableIndex = 8; // the eval(...) line (0-based)
 
   const onCodeClick = (idx: number) => {
     click();
