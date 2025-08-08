@@ -132,7 +132,7 @@ const PuzzleRoom5: React.FC<PuzzleRoom5Props> = ({ isUnlocked, onSolved }) => {
   const [injectionSolved, setInjectionSolved] = useState(false);
   const [feedback, setFeedback] = useState<string | null>(null);
 
-  const { click, success, error, alarm, stopAlarm } = useSfx();
+  const { click, success, error, stopAlarm } = useSfx();
 
   useEffect(() => {
     if (!isUnlocked) return;
@@ -146,10 +146,10 @@ const PuzzleRoom5: React.FC<PuzzleRoom5Props> = ({ isUnlocked, onSolved }) => {
     if (!active) return;
     if (timeLeft === 0) {
       setFeedback('⛔ Alarm! Time expired. Threat escalating.');
-      alarm(5000);
+      // alarm disabled
       setActive(false);
     }
-  }, [timeLeft, active, alarm]);
+  }, [timeLeft, active]);
 
   useEffect(() => {
     if (cipherSolved && injectionSolved) {
