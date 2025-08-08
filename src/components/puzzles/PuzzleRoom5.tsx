@@ -81,6 +81,7 @@ useEffect(() => {
     stopDeadlineRef.current = null;
   };
 
+  /*
   const alarm = (durationMs = 5) => {
     // ensure no overlapping alarms
     stopAlarm();
@@ -103,6 +104,7 @@ useEffect(() => {
     const stopId = window.setTimeout(() => stopAlarm(), durationMs);
     timersRef.current.push(stopId);
   };
+  */
 
   return {
     click: () => beep(420, 0.05, 'square', 0.015),
