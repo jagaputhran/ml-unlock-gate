@@ -116,7 +116,6 @@ useEffect(() => {
       beep(180, 0.08, 'sawtooth', 0.03);
       setTimeout(() => beep(150, 0.1, 'sawtooth', 0.03), 90);
     },
-    alarm,
     stopAlarm,
   };
 }
