@@ -5,6 +5,7 @@ import PuzzleRoom1 from '@/components/puzzles/PuzzleRoom1';
 import PuzzleRoom2 from '@/components/puzzles/PuzzleRoom2';
 import PuzzleRoom3 from '@/components/puzzles/PuzzleRoom3';
 import PuzzleRoom4 from '@/components/puzzles/PuzzleRoom4';
+import PuzzleRoom5 from '@/components/puzzles/PuzzleRoom5';
 import FinalPortal from '@/components/FinalPortal';
 
 const CTFChallenge: React.FC = () => {
@@ -26,7 +27,7 @@ const CTFChallenge: React.FC = () => {
     return solved.has(id - 1);
   };
 
-  const allSolved = solved.size === 4;
+  const allSolved = flags.length === 4;
 
   return (
     <div
@@ -39,7 +40,7 @@ const CTFChallenge: React.FC = () => {
       }}
     >
       <div className="container mx-auto px-4 py-8 max-w-4xl relative z-10">
-        <CTFHeader completedSections={solved.size} totalSections={4} />
+        <CTFHeader completedSections={solved.size} totalSections={5} />
 
         <header className="text-center mb-8">
           <h1 className="text-3xl md:text-4xl font-bold text-ctf-primary">ML CTF: Quantum Protocol</h1>

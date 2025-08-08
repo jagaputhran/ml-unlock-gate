@@ -153,7 +153,7 @@ const MagnifierField: React.FC<{
           </div>
         )}
       </div>
-      <div className="font-medium group-hover:text-primary transition-colors">{title}</div>
+      
       <div className="text-xs text-muted-foreground">Hover to scan. Click if you think it’s fully labeled.</div>
     </button>
   );
