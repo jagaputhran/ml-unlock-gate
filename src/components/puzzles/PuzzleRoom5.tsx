@@ -36,7 +36,14 @@ const EXPECTED = 'DEFENDTHECITY';
 // Tiny WebAudio SFX
 function useSfx() {
   const ctxRef = useRef<AudioContext | null>(null);
-  useEffect(() => () => ctxRef.current?.close(), []);
+useEffect(() => {
+  return () => {
+    const c = ctxRef.current;
+    if (c) {
+      void c.close();
+    }
+  };
+}, []);
   const ensure = () => (ctxRef.current ??= new (window.AudioContext || (window as any).webkitAudioContext)());
 
   const beep = (freq: number, dur = 0.08, type: OscillatorType = 'sine', vol = 0.02) => {
