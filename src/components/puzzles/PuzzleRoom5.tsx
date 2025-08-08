@@ -81,7 +81,7 @@ useEffect(() => {
     stopDeadlineRef.current = null;
   };
 
-  const alarm = (durationMs = 5000) => {
+  const alarm = (durationMs = 5) => {
     // ensure no overlapping alarms
     stopAlarm();
     alarmActiveRef.current = true;
