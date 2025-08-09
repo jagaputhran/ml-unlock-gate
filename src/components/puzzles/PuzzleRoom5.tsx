@@ -4,7 +4,6 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Progress } from '@/components/ui/progress';
-import HackerTimer from '@/components/HackerTimer';
 
 interface PuzzleRoom5Props {
   isUnlocked: boolean;
@@ -142,14 +141,13 @@ const PuzzleRoom5: React.FC<PuzzleRoom5Props> = ({ isUnlocked, onSolved }) => {
       </CardHeader>
       <CardContent className="space-y-4">
         {/* Timer */}
-          <HackerTimer
-            roomName="Room 5"
-            duration={15}
-            onTimeUp={() => {
-              setFeedback('⛔ Alarm! Time expired. Threat escalating.');
-              setActive(false);
-            }}
-          />
+        <div className="flex items-center gap-3">
+          <div className="text-sm text-muted-foreground">Time left</div>
+          <div className="text-sm font-mono tabular-nums">{timeLeft}s</div>
+          <div className="flex-1">
+            <Progress value={(timeLeft / 90) * 100} />
+          </div>
+        </div>
 
         <div className="grid md:grid-cols-2 gap-4">
           {/* Cipher Panel */}
