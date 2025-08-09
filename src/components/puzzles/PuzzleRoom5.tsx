@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -35,88 +35,12 @@ const EXPECTED = 'DEFENDTHECITY';
 
 // Tiny WebAudio SFX
 function useSfx() {
-  const ctxRef = useRef<AudioContext | null>(null);
-  const alarmIntervalRef = useRef<number | null>(null);
-  const timersRef = useRef<number[]>([]);
-  const alarmActiveRef = useRef(false);
-  const stopDeadlineRef = useRef<number | null>(null);
-useEffect(() => {
-  return () => {
-    // stop any scheduled alarms
-    if (alarmIntervalRef.current != null) {
-      clearInterval(alarmIntervalRef.current);
-      alarmIntervalRef.current = null;
-    }
-    timersRef.current.forEach((id) => clearTimeout(id));
-    timersRef.current = [];
-    const c = ctxRef.current;
-    if (c) {
-      void c.close();
-    }
-  };
-}, []);
-  const ensure = () => (ctxRef.current ??= new (window.AudioContext || (window as any).webkitAudioContext)());
-
-  const beep = (freq: number, dur = 0.08, type: OscillatorType = 'sine', vol = 0.02) => {
-    const ctx = ensure();
-    const o = ctx.createOscillator();
-    const g = ctx.createGain();
-    o.type = type;
-    o.frequency.value = freq;
-    g.gain.value = vol;
-    o.connect(g).connect(ctx.destination);
-    o.start();
-    o.stop(ctx.currentTime + dur);
-  };
-
-  const stopAlarm = () => {
-    // mark inactive first to prevent further beeps
-    alarmActiveRef.current = false;
-    if (alarmIntervalRef.current != null) {
-      clearInterval(alarmIntervalRef.current);
-      alarmIntervalRef.current = null;
-    }
-    timersRef.current.forEach((id) => clearTimeout(id));
-    timersRef.current = [];
-    stopDeadlineRef.current = null;
-  };
-
-  /*
-  const alarm = (durationMs = 5) => {
-    // ensure no overlapping alarms
-    stopAlarm();
-    alarmActiveRef.current = true;
-    stopDeadlineRef.current = Date.now() + durationMs;
-    let toggle = false;
-    const tick = () => {
-      if (!alarmActiveRef.current) return;
-      const deadline = stopDeadlineRef.current;
-      if (deadline && Date.now() >= deadline) {
-        stopAlarm();
-        return;
-      }
-      toggle = !toggle;
-      beep(toggle ? 320 : 520, 0.09, 'triangle', 0.04);
-    };
-    const id = window.setInterval(tick, 180);
-    alarmIntervalRef.current = id as unknown as number;
-    // hard stop fallback
-    const stopId = window.setTimeout(() => stopAlarm(), durationMs);
-    timersRef.current.push(stopId);
-  };
-  */
-
+  // Sound effects disabled per user request
   return {
-    click: () => beep(420, 0.05, 'square', 0.015),
-    success: () => {
-      beep(660, 0.07, 'sine', 0.03);
-      setTimeout(() => beep(880, 0.1, 'sine', 0.03), 90);
-    },
-    error: () => {
-      beep(180, 0.08, 'sawtooth', 0.03);
-      setTimeout(() => beep(150, 0.1, 'sawtooth', 0.03), 90);
-    },
-    stopAlarm,
+    click: () => {},
+    success: () => {},
+    error: () => {},
+    stopAlarm: () => {},
   };
 }
 
