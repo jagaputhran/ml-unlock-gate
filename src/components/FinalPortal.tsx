@@ -75,7 +75,7 @@ const FinalPortal: React.FC<FinalPortalProps> = ({ alias, flags, isUnlocked, msF
             </div>
             <div className="flex justify-center">
               <Button asChild className="pulse-neon bg-ctf-success text-black hover:bg-ctf-success/80">
-                <a href={msFormLink || 'https://forms.microsoft.com/'} target="_blank" rel="noreferrer">
+                <a href={msFormLink || 'https://forms.office.com/r/r66dt5HVSC'} target="_blank" rel="noreferrer">
                   <ExternalLink className="w-4 h-4 mr-2" /> Open Microsoft Form
                 </a>
               </Button>
