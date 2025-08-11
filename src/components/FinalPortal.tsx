@@ -69,7 +69,7 @@ const FinalPortal: React.FC<FinalPortalProps> = ({ alias, flags, isUnlocked, msF
               <div className="font-semibold mb-2">Screenshot Checklist</div>
               <ul className="list-disc pl-5 text-sm text-muted-foreground space-y-1">
                 <li>Make sure your Alias and all 4 flags are visible</li>
-                <li>Take a screenshot now (Cmd/Ctrl + Shift + S)</li>
+                <li>Take a screenshot now (Cmd/Ctrl + Shift + 4)</li>
                 <li>Upload it to the Microsoft Form</li>
               </ul>
             </div>
